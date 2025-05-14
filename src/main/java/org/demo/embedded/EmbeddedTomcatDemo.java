@@ -3,12 +3,14 @@ package org.demo.embedded;
 import jakarta.servlet.Filter;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.ErrorPage;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 
 import java.io.File;
+import java.util.concurrent.Executors;
 
 public class EmbeddedTomcatDemo {
     public static void main(String[] args) throws LifecycleException {
@@ -16,6 +18,8 @@ public class EmbeddedTomcatDemo {
         tomcat.setPort(8080);
         // 设置工作目录
         tomcat.setBaseDir("target");
+        // 启用虚拟线程
+        enableVirtualThread(tomcat);
         Context ctx = tomcat.addContext("", new File(".").getAbsolutePath());
         var filterName = "loggingFilter";
         ctx.addFilterDef(createFilterDef(filterName, new LoggingFilter()));
@@ -31,6 +35,14 @@ public class EmbeddedTomcatDemo {
         tomcat.getConnector();
         tomcat.start();
         tomcat.getServer().await();
+    }
+
+    private static void enableVirtualThread(Tomcat tomcat) {
+        // 自定义 Connector 并使用 JDK 虚拟线程执行器
+        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+        connector.setPort(8080);
+        connector.getProtocolHandler().setExecutor(Executors.newVirtualThreadPerTaskExecutor());
+        tomcat.getService().addConnector(connector);
     }
 
     /// FilterDef 辅助方法
