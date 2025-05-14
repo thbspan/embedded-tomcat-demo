@@ -1,12 +1,12 @@
 package org.demo.embedded;
 
-import jakarta.servlet.Filter;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 
+import javax.servlet.Filter;
 import java.io.File;
 
 public class EmbeddedTomcatDemo {
